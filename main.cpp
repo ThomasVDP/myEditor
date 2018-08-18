@@ -33,11 +33,11 @@ int main()
 	richText.setCharacterSize(14);
 	richText.setColor(sf::Color::Black);
 	richText.setString("mmmmmmm");
-	richText.setColor(sf::Color::Red, 0, 1);
-	richText.setColor(sf::Color::Blue);
 	richText.addString("test2");
-	richText.addStyle(sf::CustomText::Italic, 2, 10);
-	richText.removeStyle(sf::CustomText::Bold, 3, 6);
+	richText.setString("aaa", 0, 2);
+	richText.setCharacterSize(25, 4, 8);
+	richText.setCharacterSize(20, 5, 6);
+	richText.addStyle(sf::CustomText::Italic, 0, 2);
 	std::cout << richText.getTextList().size() << std::endl;
 	
 	int cursorY = 0;

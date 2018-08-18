@@ -24,13 +24,8 @@ namespace sf
 	
 	void RichText::setString(const sf::String &string, int startIndex, int endIndex)
 	{
+		clear(startIndex, endIndex);
 		addString(string, startIndex);
-		text_obj_pair text_pair = getTextObjectFromTo(startIndex, endIndex + 1);
-		
-		for(text_collection::iterator it = text_pair.first + 1; it != text_pair.second; ++it)
-		{
-			it->setString("");
-		}
 		makeTextCollectionFromString();
 	}
 	
@@ -95,7 +90,7 @@ namespace sf
 	{		
 		text_obj_pair text_pair = getTextObjectFromTo(startIndex, endIndex + 1);
 		
-		for(text_collection::iterator it = text_pair.first; it != text_pair.second + 1; ++it)
+		for(text_collection::iterator it = text_pair.first; it != text_pair.second; ++it)
 		{
 			it->setCharacterSize(size);
 			it->setBackGroundColor(*(it->getBackGroundColor()), (float)myHighestCharacterSize + 1);
@@ -385,7 +380,17 @@ namespace sf
 		
 		for(text_collection::iterator it = myTexts.begin(); it != myTexts.end(); ++it)
 		{
-			it->setOrigin(it->getPosition() - myTexts.begin()->getPosition() - offset);
+			if (it->getCharacterSize() != myHighestCharacterSize)
+			{
+				unsigned int size = it->getCharacterSize();
+				it->setCharacterSize(myHighestCharacterSize);
+				sf::FloatRect bounds = it->getLocalBounds();
+				it->setCharacterSize(size);
+				float lineSpacing = it->getFont()->getLineSpacing(myHighestCharacterSize) * it->getLineSpacing();
+				it->setOrigin(it->getOrigin().x, it->getPosition().y - ((bounds.top + bounds.height) - (it->getLocalBounds().top + it->getLocalBounds().height)));
+			}
+			
+			it->setOrigin(it->getPosition().x - myTexts.begin()->getPosition().x - offset.x, it->getOrigin().y);
 			
 			bool isBold = false;
 			for(unsigned int i = 0; i < it->getStyle().size(); i++)
@@ -476,14 +481,14 @@ namespace sf
 		int length = fromIndex - textStart.second;
 		sf::String subStrBefore = textStart.first->getString().substring(0, length);
 		textStart.first->setString(textStart.first->getString().substring(length, sf::String::InvalidPos));
-		text_collection::iterator it = makeTextObjectWithStringBefore(textStart.first, subStrBefore);
+		makeTextObjectWithStringBefore(textStart.first, subStrBefore);
 		
 		text_obj textEnd = getTextObjectAt(toIndex);
 		
 		int length2 = toIndex - textEnd.second;
 		sf::String stringBefore = textEnd.first->getString().substring(0, length2);
 		textEnd.first->setString(textEnd.first->getString().substring(length2, sf::String::InvalidPos));
-		text_collection::iterator it2 = makeTextObjectWithStringBefore(textEnd.first, stringBefore);
+		makeTextObjectWithStringBefore(textEnd.first, stringBefore);
 		textEnd = getTextObjectAt(toIndex);
 		textStart = getTextObjectAt(fromIndex);
 		
